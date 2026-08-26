@@ -6,10 +6,9 @@
 > procedures, produces a recommendation, and routes consequential decisions to a human reviewer.
 
 This is an overnight capstone prototype. It is not production-ready — see [Limitations](#limitations)
-for what that means concretely. The full product/design intent lives in
-[`01_MASTER_PROJECT_SPEC.md`](01_MASTER_PROJECT_SPEC.md) and
-[`02_FRONTEND_DESIGN_SPEC.md`](02_FRONTEND_DESIGN_SPEC.md); this document explains what was actually
-built against that spec.
+for what that means concretely. It was built against a written product and frontend design spec
+(kept out of this repo); this document explains what was actually built against it, and the
+`Master Spec section N` references throughout the source comments point back at that spec.
 
 ---
 
