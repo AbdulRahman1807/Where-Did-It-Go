@@ -10,6 +10,7 @@ import { FindingPanel } from "./FindingPanel";
 import { ActivityFeed } from "./ActivityFeed";
 import { ReviewPanel } from "./ReviewPanel";
 import { OutcomePanel } from "./OutcomePanel";
+import { AuditTrail } from "./AuditTrail";
 
 export function InvestigationWorkspace({ incidentId }: { incidentId: string }) {
   const { caseData, loading, streaming, activity, reviewPayload, error, start, review } =
@@ -130,6 +131,7 @@ export function InvestigationWorkspace({ incidentId }: { incidentId: string }) {
                       <FindingPanel caseData={caseData} streaming={streaming} />
                     )}
                     <ActivityFeed history={caseData.activity_log} live={activity} streaming={streaming} />
+                    <AuditTrail incidentId={caseData.incident_id} />
                   </div>
                 </div>
               </div>

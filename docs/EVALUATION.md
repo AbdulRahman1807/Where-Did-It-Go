@@ -108,17 +108,54 @@ run 1 to the current state is itself part of demonstrating the evaluation framew
 | 8 (new account, confirmation) | No code change — daily quota had reset on a fresh Groq account | All 5 completed. **2/5 full pass** (evidence, edge). Two new, distinct judge-caught issues: NORMAL-2091 *regressed on a structural check* (review triggered when it shouldn't have) after the model invented an unwarranted "stale inventory data" narrative for a plain, agreeing stockout; FAILURE-4400 was still occasionally naming a soft "likely cause" instead of stating the cause can't be established; HIGHRISK-5210 failed only the now-recalibrated `source_types` check (see run 4's note — recalibrated the same way for this case too). |
 | 9 (prompt fix) | Added an explicit synthesis rule: agreeing records don't need an invented explanation for *why* they agree (no "stale data" story unless a specific event actually shows a timing mismatch); strengthened the missing-evidence rule to name the exact shape (inventory *and* location history both empty) that must produce "cause cannot be established," not a softened rephrase of it. Recalibrated `EVAL-HIGHRISK-5210`'s `source_types` the same way as `EDGE-3157` (documented inline). | **4/5 full pass.** All five structural/safety checks (review-trigger, risk level, final status, evidence count, source types) at **5/5** — first run to hit that. Only remaining failure: EDGE-3157's judge flagged the finding for reframing "why review is needed" (a procedural fact) as if it were "what operationally caused the short pick" (conflating two things that have different evidence sources). |
 | 10 (prompt fix) | Added an explicit rule separating "what operationally caused this" from "why a human needs to decide" — the finding should describe the operational situation the evidence shows, not recast a procedural review-requirement as the cause. | **4/5 full pass again.** Structural/safety checks **5/5** again. EDGE-3157 now passes. A *different* case (HIGHRISK-5210) failed the judge this time — on a genuinely minor point: the finding itself was excellent, honest "cause cannot be established" text; the judge flagged that the recommendation's supervisor-authorization claim wasn't matched by a "supports"-labeled evidence item (it was labeled "neutral"). The underlying claim is factually correct per SOP-06 — this is an evidence-stance labeling nuance, not a safety or factual error. |
+| 11 (confirmation after structural changes) | Three code changes since run 10, none touching prompts: (a) `app/nodes/tools.py` replaces the batch `ToolNode` with a one-call-per-step loop (next-steps #4); (b) `finalize_node` adds an independent structural re-check that blocks a restricted SKU from resolving without a recorded human approval (next-steps #6); (c) one deliberately irrelevant `cycle_count` noise event added to INC-1042's location history (next-steps #3, partial). | **4/5 full pass**, structural/safety checks **5/5** again — identical shape to run 10. HIGHRISK-5210 failed the judge again, on the *same* evidence-stance nuance described in run 10 (not a new issue, and not caused by the structural guard added in this run — the guard only changes behavior when a restricted SKU has *no* recorded approval, which didn't apply here since the scripted reviewer approved). Confirms the tool-loop rewrite, the finalize guard, and the added noise event are all behavior-neutral for the five flagship cases. |
 
-**Bottom line:** across 10 live runs, the judge caught five distinct, real content-quality issues
+## Retrieval evaluation
+
+Source: `backend/eval/retrieval_cases.py` (17 labeled query -> expected-SOP-section cases) and
+`backend/eval/run_retrieval_eval.py` (the runner). This is the root README's next-steps item #2,
+now implemented: a small labeled retrieval set that catches regressions in the SOP corpus or
+retrieval quality directly, rather than relying on spot-checking whether a case's final wording
+looks reasonable.
+
+Unlike the main eval suite, this needs no `GROQ_API_KEY` and makes no LLM calls at all — it queries
+`app.rag.index` directly against the real persistent Chroma collection built from the corpus on
+disk, so it doubles as a regression check on the corpus itself: renaming, deleting, or
+substantially rewording a section will show up here as a new miss the next time it's run.
+
+```bash
+cd backend
+source .venv/bin/activate
+python -m eval.run_retrieval_eval
+```
+
+Writes `backend/eval/last_retrieval_run_report.md`. Each case queries `search_procedures`'s
+top-3 (matching the tool's own default `k`) and checks whether the expected SOP document appears
+anywhere in those results (`hit@3`, the pass bar) — exact-section match is reported for information
+only, since two adjacent sections of the same procedure are often both a reasonable retrieval.
+Most queries deliberately avoid the target section's exact wording (paraphrased, not copied), so a
+pass demonstrates genuine semantic retrieval rather than keyword overlap — the same property README
+section 6 claims for `search_procedures` itself.
+
+**First run: 16/17.** The one miss is kept in deliberately, not removed to make the suite green:
+querying "damage inspection" doesn't retrieve SOP-07's "Legitimate causes of a short pick" section
+(worded "quality inspection or damage review") within the top 3 — the phrasing is close enough for
+a person to recognize but not close enough for `all-MiniLM-L6-v2` at this corpus's size. That's
+exactly the class of regression this eval exists to catch: a real, small corpus/retrieval gap,
+found on the first run of the tool built to find it, rather than a synthetic example.
+
+**Bottom line:** across 11 live runs, the judge caught five distinct, real content-quality issues
 (evidence-ID citation drift, invented "stale data" narratives, under-hedged missing-evidence
 findings, conflating procedural review-reasons with operational causes, and evidence-stance
 labeling), and four of them were fixed at the prompt level with the fix verified on a subsequent
 run — never by loosening an assertion to make a failure disappear. The one exception
 (`EVAL-EDGE-3157`'s and `EVAL-HIGHRISK-5210`'s `source_types`) was a deliberate, documented
 recalibration of an assertion that didn't correspond to an actual safety requirement for those
-cases, not a response to a failure that mattered.
+cases, not a response to a failure that mattered. Run 11 also confirms three structural code
+changes (the granular per-tool-call checkpointing, the finalize-time restricted-SKU guard, and one
+added noise event) are behavior-neutral for all five cases — no prompt changes were needed.
 
-**What's solid, unconditionally:** the last two consecutive full runs both hit 5/5 on every
+**What's solid, unconditionally:** the last three consecutive full runs all hit 5/5 on every
 structural/safety check — review triggers for the right reason every time, risk level and final
 status are correct every time, and the deterministic missing-evidence rule (added in run 6, still
 holding) has never failed since. **What still varies:** which single case, if any, trips the

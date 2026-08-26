@@ -1,5 +1,6 @@
 [
   {"event_id": "LOC-EVT-0090", "sku": "XJ-482", "location": "A-17", "event_type": "putaway", "timestamp": "2026-08-18T09:00:00Z", "actor": "robot-14", "note": "Initial putaway after receiving."},
+  {"event_id": "LOC-EVT-0093", "sku": "XJ-482", "location": "A-17", "event_type": "cycle_count", "timestamp": "2026-08-22T10:00:00Z", "actor": "system", "note": "Scheduled cycle count confirms 1 unit at A-17."},
   {"event_id": "LOC-EVT-0091", "sku": "XJ-482", "location": "A-17", "event_type": "moved", "timestamp": "2026-08-25T14:21:00Z", "actor": "robot-14", "note": "Automated re-slotting move: A-17 to B-12 (space consolidation pass)."},
   {"event_id": "LOC-EVT-0092", "sku": "XJ-482", "location": "B-12", "event_type": "putaway", "timestamp": "2026-08-25T14:21:00Z", "actor": "robot-14", "note": "Arrival scan confirming placement at B-12."},
 

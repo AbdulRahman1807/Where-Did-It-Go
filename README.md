@@ -264,13 +264,20 @@ LLM's phrasing-sensitive judgment — verified with a plain-Python unit check, i
 call. The wording issues were fixed at the prompt level in `app/nodes/synthesize.py`, each verified
 by a subsequent passing run, never by loosening an assertion.
 
-**Where it landed:** the last two consecutive full runs both hit **5/5 on every structural/safety
-check** and **4/5 full pass** overall (structural checks plus the judge). The one remaining
-non-pass each time was a different case, on a genuinely minor, arguably-debatable wording point —
-not a repeated or unaddressed failure mode. That's consistent with sitting near the practical
-ceiling for a model this size against a deliberately strict judge, not with an outstanding bug.
-Re-run `python -m eval.run_eval` any time; expect occasional single-case judge variance on wording,
-not structural failures.
+**Where it landed:** the last three consecutive full runs all hit **5/5 on every structural/safety
+check** and **4/5 full pass** overall (structural checks plus the judge) — including a confirmation
+run after the granular tool-checkpointing rewrite, the finalize-time restricted-SKU guard, and one
+added noise event (see next-steps #3, #4, #6 below), none of which needed a prompt change. The one
+remaining non-pass each time was a different case, on a genuinely minor, arguably-debatable wording
+point — not a repeated or unaddressed failure mode. That's consistent with sitting near the
+practical ceiling for a model this size against a deliberately strict judge, not with an
+outstanding bug. Re-run `python -m eval.run_eval` any time; expect occasional single-case judge
+variance on wording, not structural failures.
+
+A separate, LLM-free **retrieval evaluation** (`python -m eval.run_retrieval_eval`, no
+`GROQ_API_KEY` needed) checks 17 labeled query→expected-SOP-section cases directly against the
+live Chroma index — first run: 16/17, with the one miss documented and kept in deliberately as a
+real, found corpus gap. See [`docs/EVALUATION.md`](docs/EVALUATION.md#retrieval-evaluation).
 
 ## 11. Failure modes
 
@@ -331,19 +338,52 @@ behaves.
 Roughly in priority order:
 
 1. **Broader exception coverage** — extend beyond pick-task exceptions once the pattern is proven.
-2. **Retrieval evaluation** — a small labeled retrieval set (query → expected SOP section) to catch
-   regressions as the corpus grows, rather than eyeballing relevance.
-3. **Richer event history** — the synthetic world currently has just enough event density to support
-   the five eval cases; more realistic noise (irrelevant events, near-miss timestamps) would stress
-   the "distinguish signal from noise" behavior harder.
-4. **Mid-round crash recovery** — checkpoint more granularly (e.g. after each tool call, not just
-   after each node) so a killed process loses less in-progress work.
-5. **Audit logging** — the checkpointer already retains full state history per incident; surfacing
-   it as an explicit, exportable audit trail (rather than something only inspectable via the
-   checkpointer) would matter for a real deployment.
-6. **Stronger authority controls** — SOP-06's restricted-SKU rule is enforced today by the agent
-   reading and following the procedure; a production system would enforce it structurally
-   (e.g. a hard allow-list check that can't be reasoned around), not just procedurally.
+   Not started: this is a genuinely open-ended item, not a scoped engineering task — `state.py`,
+   `intake.py`'s prompt, and every operational tool are pick-task-specific by design today, and
+   defining what a receiving- or putaway-exception investigation actually needs (new fixtures, new
+   SOPs, possibly new tools) is a product decision the master spec doesn't currently make, not
+   something to guess at unilaterally.
+2. ~~**Retrieval evaluation**~~ — **done.** `backend/eval/retrieval_cases.py` +
+   `eval/run_retrieval_eval.py`; see [`docs/EVALUATION.md`](docs/EVALUATION.md#retrieval-evaluation).
+3. **Richer event history** — **started, not comprehensive.** Added one deliberately irrelevant
+   `cycle_count` event to INC-1042's location history (`backend/app/data/fixtures/
+   location_events.json`, `LOC-EVT-0093`, 2026-08-22: confirms 1 unit at A-17 four days before the
+   `moved` event that actually explains the failure) — noise the agent must correctly discount
+   without changing the correct answer, exactly the "distinguish signal from noise" stress test
+   this item asks for. Verified against a live Groq run: the finding still correctly identifies the
+   move to B-12 and flags the inventory-vs-location conflict, unaffected by the added noise. Scaling
+   this across the rest of the world's event history (rather than the one flagship case) is still
+   open.
+4. ~~**Mid-round crash recovery**~~ — **done.** The `tools` node (`app/nodes/tools.py`) now executes
+   exactly one pending tool call per graph step instead of LangGraph's prebuilt `ToolNode` running
+   an entire AI turn's tool calls as one step, so a checkpoint lands after every individual call —
+   a crash mid-batch now redoes at most the one in-flight call, not the whole batch, without
+   changing what the model sees (still one `ToolMessage` per call, in order). Verified against a
+   live Groq investigation (16 checkpoints recorded for a single round, alternating
+   `investigate`/`tools` per call) and directly, without any LLM call, by driving the node/router
+   functions through a synthetic 3-tool-call AI turn and confirming it loops `tools -> tools ->
+   tools -> investigate` in order before handing back control.
+5. ~~**Audit logging**~~ — **done.** `GET /api/incidents/{id}/audit` (`backend/app/api/service.py`'s
+   `get_audit_trail`) walks the checkpointer's full `aget_state_history` for the incident's thread
+   and returns it as a plain chronological list — which graph node produced each checkpoint, its
+   timestamp, status/round/risk at that point, and the exact new `activity_log` lines that step
+   contributed. Surfaced in the frontend as a collapsible "Audit trail" panel
+   (`frontend/components/investigation/AuditTrail.tsx`) at the bottom of the investigation
+   workspace, with a one-click JSON export. Verified end-to-end in a real (Playwright-driven)
+   browser against a live checkpointed case: the panel renders the full node-by-node trail and the
+   export triggers a real download, with zero console errors.
+6. ~~**Stronger authority controls**~~ — **done, scoped to SOP-06's one authority boundary** (not a
+   general-purpose policy engine). `finalize_node` (`app/nodes/finalize.py`) independently re-checks
+   the SKU's restricted flag straight from the operational world — not from `state["review"]`,
+   which only reflects whether *assess.py's* deterministic rule happened to run correctly — and
+   structurally blocks any restricted/high-value SKU from reaching a `resolved` outcome unless a
+   human decision (`approve`/`modify`) is actually on record for that thread; otherwise it forces
+   an escalation instead. This holds even if the upstream review-required flag were ever wrong, so
+   it's the SOP-06 case specifically that "can't be reasoned around" — other authority rules aren't
+   in scope here. Verified with a plain-Python unit check (no LLM call, matching the precedent set
+   by the missing-evidence deterministic rule in §10): fires for a restricted SKU with no recorded
+   approval, resolves normally once an approval is recorded, and doesn't false-positive on a
+   non-restricted SKU with no review at all.
 
 ## 14. Demo script
 

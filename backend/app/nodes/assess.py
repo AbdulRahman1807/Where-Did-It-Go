@@ -28,6 +28,7 @@ from pydantic import BaseModel, Field
 
 from app.data.world import WORLD
 from app.models.llm import get_fast_model, invoke_with_retry
+from app.nodes.common import is_restricted_sku
 from app.state import InvestigationState
 
 _RISK_ORDER = {"low": 0, "medium": 1, "high": 2}
@@ -67,7 +68,7 @@ def _deterministic_checks(state: InvestigationState) -> tuple[list[str], str | N
     task = WORLD.get_pick_task(state["task_id"])
     sku = task["sku"] if task else None
     inventory = WORLD.get_inventory(sku) if sku else []
-    if any(r.get("restricted") for r in inventory):
+    if is_restricted_sku(state):
         reasons.append(
             "This SKU is flagged high-value/restricted. Procedure requires supervisor "
             "sign-off before any corrective action, regardless of evidence clarity."

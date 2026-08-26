@@ -124,6 +124,70 @@ async def list_all_cases(graph) -> list[dict[str, Any]]:
     return cases
 
 
+async def get_audit_trail(graph, incident_id: str) -> list[dict[str, Any]]:
+    """The checkpointer already retains full state history per incident --
+    this surfaces it as an explicit, ordered, exportable audit trail rather
+    than something only inspectable by poking at the checkpointer directly
+    (root README next-steps item #5).
+
+    `graph.aget_state_history` yields snapshots newest-first, each carrying
+    `.next` (the node(s) about to run *from* that checkpoint) rather than a
+    "which node just wrote this" field -- this LangGraph version's
+    checkpoint metadata doesn't carry the latter directly. So the node that
+    *produced* a given checkpoint is read off the chronologically-preceding
+    checkpoint's `.next` instead, once the list is put in oldest-first
+    order. Since `activity_log` is append-only, each entry also reports the
+    exact new activity-log lines that node contributed -- so the trail
+    explains not just "what state changed" but "what happened", in the same
+    plain language the live activity feed uses.
+
+    The very first checkpoint (the raw incident input, before any node has
+    run) and LangGraph's internal `__start__` scheduling checkpoint (a
+    bookkeeping step between "input received" and the first real node,
+    carrying no state change of its own) are collapsed: only the initial
+    entry is kept, labeled with `node: None`, so the trail starts cleanly at
+    "case opened" and then only lists real graph nodes.
+    """
+    config = {"configurable": {"thread_id": incident_id}}
+    newest_first = [snap async for snap in graph.aget_state_history(config)]
+    if not newest_first:
+        return []
+    oldest_first = list(reversed(newest_first))
+
+    entries: list[dict[str, Any]] = []
+    prior_log_len = 0
+    for i, snap in enumerate(oldest_first):
+        if i > 0:
+            preceding_next = oldest_first[i - 1].next
+            producer = preceding_next[0] if preceding_next else None
+            if producer == "__start__":
+                continue  # internal scheduling checkpoint, not a real node -- skip it
+            node = producer
+        else:
+            node = None  # the raw incident input, before any node has run
+
+        values = snap.values or {}
+        activity_log = values.get("activity_log") or []
+        new_activity = activity_log[prior_log_len:]
+        prior_log_len = len(activity_log)
+
+        entries.append(
+            {
+                "step": (snap.metadata or {}).get("step"),
+                "node": node,
+                "checkpoint_id": snap.config.get("configurable", {}).get("checkpoint_id"),
+                "timestamp": snap.created_at,
+                "status": values.get("status"),
+                "round": values.get("round"),
+                "risk_level": values.get("risk_level"),
+                "review_required": (values.get("review") or {}).get("required", False),
+                "evidence_count": len(values.get("evidence") or []),
+                "new_activity": new_activity,
+            }
+        )
+    return entries
+
+
 async def get_one_case(graph, incident_id: str) -> dict[str, Any] | None:
     incident = WORLD.get_incident(incident_id)
     if incident is not None:
