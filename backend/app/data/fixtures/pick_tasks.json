@@ -1,0 +1,103 @@
+[
+  {
+    "task_id": "PX-1042",
+    "order_id": "ORD-7731",
+    "sku": "XJ-482",
+    "qty_requested": 1,
+    "assigned_location": "A-17",
+    "zone": "A",
+    "status": "exception",
+    "created_at": "2026-08-25T14:05:00Z",
+    "last_updated": "2026-08-25T14:32:00Z",
+    "attempts": [
+      {"attempt_no": 1, "timestamp": "2026-08-25T14:18:00Z", "result": "failed", "reason_code": "ITEM_NOT_FOUND", "note": "Associate reported no unit at A-17."},
+      {"attempt_no": 2, "timestamp": "2026-08-25T14:32:00Z", "result": "failed", "reason_code": "ITEM_NOT_FOUND", "note": "Second attempt after re-slotting check, still not found at A-17."}
+    ]
+  },
+  {
+    "task_id": "PX-2091",
+    "order_id": "ORD-8850",
+    "sku": "QW-119",
+    "qty_requested": 2,
+    "assigned_location": "B-04",
+    "zone": "B",
+    "status": "exception",
+    "created_at": "2026-08-25T09:44:00Z",
+    "last_updated": "2026-08-25T09:51:00Z",
+    "attempts": [
+      {"attempt_no": 1, "timestamp": "2026-08-25T09:51:00Z", "result": "failed", "reason_code": "ITEM_NOT_FOUND", "note": "Bin at B-04 empty on arrival."}
+    ]
+  },
+  {
+    "task_id": "PX-3157",
+    "order_id": "ORD-9412",
+    "sku": "LM-733",
+    "qty_requested": 4,
+    "assigned_location": "A-22",
+    "zone": "A",
+    "status": "exception",
+    "created_at": "2026-08-25T10:18:00Z",
+    "last_updated": "2026-08-25T10:26:00Z",
+    "attempts": [
+      {"attempt_no": 1, "timestamp": "2026-08-25T10:26:00Z", "result": "short_pick", "reason_code": "SHORT_PICK", "qty_picked": 2, "note": "Only 2 of 4 units available at A-22; task flagged instead of auto-completing partial."}
+    ]
+  },
+  {
+    "task_id": "PX-4400",
+    "order_id": "ORD-1200",
+    "sku": "RT-955",
+    "qty_requested": 1,
+    "assigned_location": "D-03",
+    "zone": "D",
+    "status": "exception",
+    "created_at": "2026-08-25T08:00:00Z",
+    "last_updated": "2026-08-25T08:09:00Z",
+    "attempts": [
+      {"attempt_no": 1, "timestamp": "2026-08-25T08:09:00Z", "result": "failed", "reason_code": "ITEM_NOT_FOUND", "note": "Associate could not locate bin contents at D-03; zone D is a recently activated overflow area."}
+    ]
+  },
+  {
+    "task_id": "PX-5210",
+    "order_id": "ORD-3399",
+    "sku": "HV-001",
+    "qty_requested": 1,
+    "assigned_location": "C-02",
+    "zone": "C",
+    "status": "exception",
+    "created_at": "2026-08-25T11:08:00Z",
+    "last_updated": "2026-08-25T11:16:00Z",
+    "attempts": [
+      {"attempt_no": 1, "timestamp": "2026-08-25T11:16:00Z", "result": "failed", "reason_code": "ITEM_NOT_FOUND", "note": "Associate reported cage C-02 did not contain the unit; restricted zone, no further action taken without authorization."}
+    ]
+  },
+  {
+    "task_id": "PX-1188",
+    "order_id": "ORD-0044",
+    "sku": "BK-220",
+    "qty_requested": 3,
+    "assigned_location": "B-19",
+    "zone": "B",
+    "status": "completed",
+    "created_at": "2026-08-24T13:12:00Z",
+    "last_updated": "2026-08-24T14:05:00Z",
+    "attempts": [
+      {"attempt_no": 1, "timestamp": "2026-08-24T13:20:00Z", "result": "failed", "reason_code": "ITEM_NOT_FOUND", "note": "Bin at B-19 short on arrival."},
+      {"attempt_no": 2, "timestamp": "2026-08-24T14:05:00Z", "result": "success", "reason_code": null, "note": "Replenishment completed same shift; pick succeeded on retry."}
+    ]
+  },
+  {
+    "task_id": "PX-6207",
+    "order_id": "ORD-6207",
+    "sku": "PL-340",
+    "qty_requested": 1,
+    "assigned_location": "A-08",
+    "zone": "A",
+    "status": "completed",
+    "created_at": "2026-08-24T15:32:00Z",
+    "last_updated": "2026-08-24T16:40:00Z",
+    "attempts": [
+      {"attempt_no": 1, "timestamp": "2026-08-24T15:40:00Z", "result": "failed", "reason_code": "ITEM_NOT_FOUND", "note": "Reported missing at A-08."},
+      {"attempt_no": 2, "timestamp": "2026-08-24T16:40:00Z", "result": "success", "reason_code": null, "note": "Found mis-slotted one bin over; corrected and completed after human review approved a manual recount."}
+    ]
+  }
+]

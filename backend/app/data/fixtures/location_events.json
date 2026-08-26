@@ -1,0 +1,18 @@
+[
+  {"event_id": "LOC-EVT-0090", "sku": "XJ-482", "location": "A-17", "event_type": "putaway", "timestamp": "2026-08-18T09:00:00Z", "actor": "robot-14", "note": "Initial putaway after receiving."},
+  {"event_id": "LOC-EVT-0091", "sku": "XJ-482", "location": "A-17", "event_type": "moved", "timestamp": "2026-08-25T14:21:00Z", "actor": "robot-14", "note": "Automated re-slotting move: A-17 to B-12 (space consolidation pass)."},
+  {"event_id": "LOC-EVT-0092", "sku": "XJ-482", "location": "B-12", "event_type": "putaway", "timestamp": "2026-08-25T14:21:00Z", "actor": "robot-14", "note": "Arrival scan confirming placement at B-12."},
+
+  {"event_id": "LOC-EVT-0140", "sku": "QW-119", "location": "B-04", "event_type": "pick_scan", "timestamp": "2026-08-25T07:10:00Z", "actor": "associate-118", "note": "Pick scan depleted remaining stock to 0."},
+  {"event_id": "LOC-EVT-0141", "sku": "QW-119", "location": "B-04", "event_type": "cycle_count", "timestamp": "2026-08-25T06:00:00Z", "actor": "system", "note": "Cycle count confirms 0 units on hand."},
+
+  {"event_id": "LOC-EVT-0210", "sku": "LM-733", "location": "A-22", "event_type": "putaway", "timestamp": "2026-08-15T10:00:00Z", "actor": "robot-09", "note": "Initial putaway, 6 units."},
+  {"event_id": "LOC-EVT-0211", "sku": "LM-733", "location": "A-22", "event_type": "cycle_count", "timestamp": "2026-08-25T10:21:00Z", "actor": "system", "note": "Qty adjusted 4 to 2: 2 units reserved concurrently for expedited ORD-9310."},
+
+  {"event_id": "LOC-EVT-0310", "sku": "HV-001", "location": "C-02", "event_type": "putaway", "timestamp": "2026-08-10T11:00:00Z", "actor": "associate-054", "note": "Restricted-cage putaway, dual-scan confirmed."},
+  {"event_id": "LOC-EVT-0311", "sku": "HV-001", "location": "C-02", "event_type": "cycle_count", "timestamp": "2026-08-23T00:00:00Z", "actor": "system", "note": "Scheduled restricted-zone cycle count, qty confirmed at 1."},
+
+  {"event_id": "LOC-EVT-0420", "sku": "BK-220", "location": "B-19", "event_type": "putaway", "timestamp": "2026-08-24T07:00:00Z", "actor": "robot-02", "note": "Replenishment putaway, 12 units."},
+
+  {"event_id": "LOC-EVT-0430", "sku": "PL-340", "location": "A-08", "event_type": "moved", "timestamp": "2026-08-24T16:35:00Z", "actor": "associate-071", "note": "Corrected mis-slot back to A-08 after manual recount."}
+]

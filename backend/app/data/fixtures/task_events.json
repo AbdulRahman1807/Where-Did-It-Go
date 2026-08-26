@@ -1,0 +1,30 @@
+[
+  {"event_id": "TASK-EVT-0044", "task_id": "PX-1042", "timestamp": "2026-08-25T14:05:00Z", "event_type": "task_created", "detail": "Pick task created for ORD-7731."},
+  {"event_id": "TASK-EVT-0045", "task_id": "PX-1042", "timestamp": "2026-08-25T14:18:00Z", "event_type": "attempt_failed", "detail": "Attempt 1 failed: ITEM_NOT_FOUND at A-17."},
+  {"event_id": "TASK-EVT-0046", "task_id": "PX-1042", "timestamp": "2026-08-25T14:32:00Z", "event_type": "attempt_failed", "detail": "Attempt 2 failed: ITEM_NOT_FOUND at A-17."},
+  {"event_id": "TASK-EVT-0047", "task_id": "PX-1042", "timestamp": "2026-08-25T14:32:30Z", "event_type": "escalated_by_system", "detail": "Auto-escalated after 2 consecutive failures at the same location."},
+
+  {"event_id": "TASK-EVT-0120", "task_id": "PX-2091", "timestamp": "2026-08-25T09:44:00Z", "event_type": "task_created", "detail": "Pick task created for ORD-8850."},
+  {"event_id": "TASK-EVT-0121", "task_id": "PX-2091", "timestamp": "2026-08-25T09:51:00Z", "event_type": "attempt_failed", "detail": "Attempt 1 failed: ITEM_NOT_FOUND at B-04."},
+  {"event_id": "TASK-EVT-0122", "task_id": "PX-2091", "timestamp": "2026-08-25T09:51:30Z", "event_type": "escalated_by_system", "detail": "Auto-escalated after single failure (zero-quantity flag)."},
+
+  {"event_id": "TASK-EVT-0200", "task_id": "PX-3157", "timestamp": "2026-08-25T10:18:00Z", "event_type": "task_created", "detail": "Pick task created for ORD-9412 (expedited)."},
+  {"event_id": "TASK-EVT-0201", "task_id": "PX-3157", "timestamp": "2026-08-25T10:26:00Z", "event_type": "attempt_short_pick", "detail": "Attempt 1 short-picked: 2 of 4 requested at A-22."},
+  {"event_id": "TASK-EVT-0202", "task_id": "PX-3157", "timestamp": "2026-08-25T10:26:30Z", "event_type": "escalated_by_system", "detail": "Auto-escalated: short pick on an expedited order."},
+
+  {"event_id": "TASK-EVT-0300", "task_id": "PX-4400", "timestamp": "2026-08-25T08:00:00Z", "event_type": "task_created", "detail": "Pick task created for ORD-1200."},
+  {"event_id": "TASK-EVT-0301", "task_id": "PX-4400", "timestamp": "2026-08-25T08:09:00Z", "event_type": "attempt_failed", "detail": "Attempt 1 failed: ITEM_NOT_FOUND at D-03."},
+  {"event_id": "TASK-EVT-0302", "task_id": "PX-4400", "timestamp": "2026-08-25T08:09:30Z", "event_type": "escalated_by_system", "detail": "Auto-escalated after single failure in newly activated overflow zone D."},
+
+  {"event_id": "TASK-EVT-0400", "task_id": "PX-5210", "timestamp": "2026-08-25T11:08:00Z", "event_type": "task_created", "detail": "Pick task created for ORD-3399."},
+  {"event_id": "TASK-EVT-0401", "task_id": "PX-5210", "timestamp": "2026-08-25T11:16:00Z", "event_type": "attempt_failed", "detail": "Attempt 1 failed: ITEM_NOT_FOUND at C-02 (restricted zone)."},
+  {"event_id": "TASK-EVT-0402", "task_id": "PX-5210", "timestamp": "2026-08-25T11:16:30Z", "event_type": "escalated_by_system", "detail": "Auto-escalated: any exception on a restricted-zone SKU requires review."},
+
+  {"event_id": "TASK-EVT-0500", "task_id": "PX-1188", "timestamp": "2026-08-24T13:12:00Z", "event_type": "task_created", "detail": "Pick task created for ORD-0044."},
+  {"event_id": "TASK-EVT-0501", "task_id": "PX-1188", "timestamp": "2026-08-24T13:20:00Z", "event_type": "attempt_failed", "detail": "Attempt 1 failed: ITEM_NOT_FOUND at B-19."},
+  {"event_id": "TASK-EVT-0502", "task_id": "PX-1188", "timestamp": "2026-08-24T14:05:00Z", "event_type": "attempt_succeeded", "detail": "Attempt 2 succeeded after same-shift replenishment."},
+
+  {"event_id": "TASK-EVT-0600", "task_id": "PX-6207", "timestamp": "2026-08-24T15:32:00Z", "event_type": "task_created", "detail": "Pick task created for ORD-6207."},
+  {"event_id": "TASK-EVT-0601", "task_id": "PX-6207", "timestamp": "2026-08-24T15:40:00Z", "event_type": "attempt_failed", "detail": "Attempt 1 failed: ITEM_NOT_FOUND at A-08."},
+  {"event_id": "TASK-EVT-0602", "task_id": "PX-6207", "timestamp": "2026-08-24T16:40:00Z", "event_type": "attempt_succeeded", "detail": "Attempt 2 succeeded after manual recount located mis-slotted unit."}
+]

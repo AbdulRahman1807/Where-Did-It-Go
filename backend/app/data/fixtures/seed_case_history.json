@@ -1,0 +1,32 @@
+[
+  {
+    "incident_id": "INC-1188",
+    "task_id": "PX-1188",
+    "order_id": "ORD-0044",
+    "title": "Pick failure, SKU BK-220",
+    "reported_at": "2026-08-24T13:21:00Z",
+    "resolved_at": "2026-08-24T14:22:00Z",
+    "status": "resolved",
+    "risk_level": "low",
+    "likely_cause": "Bin was temporarily short; same-shift replenishment restored stock.",
+    "recommendation": "No further action; retry succeeded after replenishment.",
+    "human_decision": "approve",
+    "reviewer": "J. Alvarez",
+    "note": "Seeded historical record for dashboard context; not a live-runnable case."
+  },
+  {
+    "incident_id": "INC-6633",
+    "task_id": "PX-6207",
+    "order_id": "ORD-6207",
+    "title": "Pick failure, SKU PL-340",
+    "reported_at": "2026-08-24T15:41:00Z",
+    "resolved_at": "2026-08-24T16:52:00Z",
+    "status": "resolved",
+    "risk_level": "medium",
+    "likely_cause": "Unit was mis-slotted one bin over from A-08.",
+    "recommendation": "Manually recount adjacent bins before writing off the location.",
+    "human_decision": "reject",
+    "reviewer": "M. Okafor",
+    "note": "Reviewer initially rejected the 'stock-out, reorder' recommendation and asked for a manual recount; agent re-investigated and found the mis-slotted unit. Seeded historical record for dashboard context; not a live-runnable case."
+  }
+]

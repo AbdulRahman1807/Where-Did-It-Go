@@ -1,0 +1,47 @@
+[
+  {
+    "incident_id": "INC-1042",
+    "task_id": "PX-1042",
+    "order_id": "ORD-7731",
+    "reported_at": "2026-08-25T14:33:00Z",
+    "title": "Repeated pick failure, SKU XJ-482",
+    "summary": "Pick task PX-1042 failed twice at location A-17 for order ORD-7731. Inventory shows 1 unit at A-17, but the system needs to confirm whether that record is still accurate.",
+    "eval_category": "evidence"
+  },
+  {
+    "incident_id": "INC-2091",
+    "task_id": "PX-2091",
+    "order_id": "ORD-8850",
+    "reported_at": "2026-08-25T09:52:00Z",
+    "title": "Pick failure, SKU QW-119",
+    "summary": "Pick task PX-2091 failed at location B-04 for order ORD-8850. Associate reported an empty bin.",
+    "eval_category": "normal"
+  },
+  {
+    "incident_id": "INC-3157",
+    "task_id": "PX-3157",
+    "order_id": "ORD-9412",
+    "reported_at": "2026-08-25T10:27:00Z",
+    "title": "Short pick, SKU LM-733 (expedited order)",
+    "summary": "Pick task PX-3157 only picked 2 of the 4 requested units at A-22 for expedited order ORD-9412. System auto-flagged rather than partially fulfilling.",
+    "eval_category": "edge"
+  },
+  {
+    "incident_id": "INC-4400",
+    "task_id": "PX-4400",
+    "order_id": "ORD-1200",
+    "reported_at": "2026-08-25T08:10:00Z",
+    "title": "Pick failure, SKU RT-955 (overflow zone)",
+    "summary": "Pick task PX-4400 failed at location D-03 for order ORD-1200. Zone D was activated recently for overflow storage.",
+    "eval_category": "failure"
+  },
+  {
+    "incident_id": "INC-5210",
+    "task_id": "PX-5210",
+    "order_id": "ORD-3399",
+    "reported_at": "2026-08-25T11:17:00Z",
+    "title": "Pick failure, SKU HV-001 (restricted zone)",
+    "summary": "Pick task PX-5210 failed at location C-02 for order ORD-3399. C-02 is a restricted, high-value cage.",
+    "eval_category": "high_risk"
+  }
+]

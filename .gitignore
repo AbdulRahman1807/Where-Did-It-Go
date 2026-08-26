@@ -1,0 +1,24 @@
+# Python
+backend/.venv/
+backend/**/__pycache__/
+*.pyc
+
+# Env / secrets
+.env
+backend/.env
+
+# LangGraph checkpoints / RAG index (regenerated locally)
+backend/app/persistence/*.sqlite*
+backend/app/rag/.chroma/
+backend/eval/last_run_report.md
+
+# Incidents filed at runtime through the app (not curated eval fixtures)
+backend/app/data/fixtures/user_incidents.json
+
+# Node / Next.js
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+
+# OS
+.DS_Store

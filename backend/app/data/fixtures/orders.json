@@ -1,0 +1,72 @@
+[
+  {
+    "order_id": "ORD-7731",
+    "customer_ref": "CUST-1029",
+    "created_at": "2026-08-25T08:02:00Z",
+    "priority": "standard",
+    "status": "exception",
+    "line_items": [
+      {"sku": "XJ-482", "description": "Wireless Charging Pad", "qty_ordered": 1}
+    ]
+  },
+  {
+    "order_id": "ORD-8850",
+    "customer_ref": "CUST-2214",
+    "created_at": "2026-08-25T09:40:00Z",
+    "priority": "standard",
+    "status": "exception",
+    "line_items": [
+      {"sku": "QW-119", "description": "USB-C Cable 2m", "qty_ordered": 2}
+    ]
+  },
+  {
+    "order_id": "ORD-9412",
+    "customer_ref": "CUST-3087",
+    "created_at": "2026-08-25T10:15:00Z",
+    "priority": "expedited",
+    "status": "exception",
+    "line_items": [
+      {"sku": "LM-733", "description": "Ceramic Mug - Blue", "qty_ordered": 4}
+    ]
+  },
+  {
+    "order_id": "ORD-1200",
+    "customer_ref": "CUST-4410",
+    "created_at": "2026-08-25T07:55:00Z",
+    "priority": "standard",
+    "status": "exception",
+    "line_items": [
+      {"sku": "RT-955", "description": "Bluetooth Speaker - Compact", "qty_ordered": 1}
+    ]
+  },
+  {
+    "order_id": "ORD-3399",
+    "customer_ref": "CUST-5502",
+    "created_at": "2026-08-25T11:05:00Z",
+    "priority": "standard",
+    "status": "exception",
+    "line_items": [
+      {"sku": "HV-001", "description": "Enterprise SSD 4TB (High-Value)", "qty_ordered": 1}
+    ]
+  },
+  {
+    "order_id": "ORD-0044",
+    "customer_ref": "CUST-0871",
+    "created_at": "2026-08-24T13:10:00Z",
+    "priority": "standard",
+    "status": "fulfilled",
+    "line_items": [
+      {"sku": "BK-220", "description": "Notebook - Ruled", "qty_ordered": 3}
+    ]
+  },
+  {
+    "order_id": "ORD-6207",
+    "customer_ref": "CUST-1654",
+    "created_at": "2026-08-24T15:30:00Z",
+    "priority": "standard",
+    "status": "fulfilled",
+    "line_items": [
+      {"sku": "PL-340", "description": "Desk Lamp - LED", "qty_ordered": 1}
+    ]
+  }
+]

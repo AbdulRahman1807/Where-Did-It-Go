@@ -1,0 +1,227 @@
+@import "tailwindcss";
+
+:root {
+  /* Base surfaces: near-black foundation with a restrained surface hierarchy */
+  --bg-void: #030405;
+  --bg-primary: #06080b;
+  --bg-surface: #0c0f14;
+  --bg-surface-2: #12161d;
+  --bg-surface-3: #191e27;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-medium: rgba(255, 255, 255, 0.14);
+
+  /* Text */
+  --text-primary: #f2f4f7;
+  --text-secondary: #9aa4b5;
+  --text-tertiary: #616b7a;
+
+  /* Semantic accents -- meaning, not decoration */
+  --accent-cyan: #3fd7ee;
+  --accent-cyan-dim: #1a4f5c;
+  --accent-green: #3ddc9b;
+  --accent-green-dim: #1c4a39;
+  --accent-amber: #f0b23f;
+  --accent-amber-dim: #4a3a17;
+  --accent-red: #f2564a;
+  --accent-red-dim: #4a1e1c;
+  --accent-grey: #6b7280;
+
+  --font-display: var(--font-space-grotesk);
+  --font-body: var(--font-inter);
+}
+
+@theme inline {
+  --color-void: var(--bg-void);
+  --color-primary: var(--bg-primary);
+  --color-surface: var(--bg-surface);
+  --color-surface-2: var(--bg-surface-2);
+  --color-surface-3: var(--bg-surface-3);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-medium: var(--border-medium);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+
+  --color-cyan: var(--accent-cyan);
+  --color-cyan-dim: var(--accent-cyan-dim);
+  --color-green: var(--accent-green);
+  --color-green-dim: var(--accent-green-dim);
+  --color-amber: var(--accent-amber);
+  --color-amber-dim: var(--accent-amber-dim);
+  --color-red: var(--accent-red);
+  --color-red-dim: var(--accent-red-dim);
+  --color-grey: var(--accent-grey);
+
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+}
+
+* {
+  border-color: var(--border-subtle);
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+}
+
+::selection {
+  background: var(--accent-cyan-dim);
+  color: var(--text-primary);
+}
+
+/* ---------------------------------------------------------------------------
+   Hero scroll/pointer channel.
+
+   These carry the hero's scroll progress (0..1) and pointer position (-1..1)
+   from JS to CSS *without* going through React state. useScrollProgress and
+   the hero's pointer handler write them straight onto a DOM node with
+   setProperty; everything scroll-linked then derives its own transform from
+   them in plain calc().
+
+   Why it matters: scroll events fire up to ~120x/second on a ProMotion
+   trackpad. Routing that through setState re-rendered the entire hero tree
+   (~58 elements, most of them inside nested `transform-style: preserve-3d`
+   contexts) on every single event, so the browser was re-running React
+   reconciliation *and* re-projecting the whole 3D subtree many times per
+   frame. That was the choppiness. A custom-property write invalidates style
+   for the subtree but is idempotent within a frame -- ten writes before the
+   next paint still cost one style recalc -- so the per-event cost drops to
+   roughly nothing and React stops being involved in scrolling at all.
+
+   Registering them with @property (rather than leaving them as untyped
+   substitution tokens) gives each a real <number> type and an initial value,
+   so first paint is correct before any JS has run. */
+@property --hero-progress {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+@property --pointer-x {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+@property --pointer-y {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+/* Per-layer highlight intensity, 0..1, for the four layers of the exploded
+   object (LABEL, PACKAGE, ITEM, LOCATION).
+
+   Each layer owns a "focus window" centred at 0.125 / 0.375 / 0.625 / 0.875 --
+   the midpoint of its quarter of the scroll. Intensity falls off linearly with
+   distance from that centre over a 0.25-wide window, so adjacent windows
+   overlap and neighbouring layers cross-fade through each other instead of one
+   switching off as the next switches on. `max(x, -x)` is absolute value,
+   written that way because it has wider browser support than abs().
+
+   This replaced a discrete `Math.floor(progress * 4)` index, which lit exactly
+   one layer at a time and changed at three hard thresholds -- once everything
+   else on the page moved continuously, that step was the only thing left that
+   visibly snapped.
+
+   --reveal ramps everything up over the first 10% of scroll so nothing is lit
+   while the hero sits at rest. */
+@property --reveal {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+@property --hl-0 {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+@property --hl-1 {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+@property --hl-2 {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+@property --hl-3 {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+/* Derived from --hero-progress, declared once here rather than repeated at
+   each use site. Keep the centres/window in sync with lib/heroHighlight.ts,
+   which mirrors this same math for the WebGL centrepiece. */
+.hero-root {
+  --cta-progress: clamp(0, calc((var(--hero-progress) - 0.55) / 0.35), 1);
+  --reveal: clamp(0, calc(var(--hero-progress) * 10), 1);
+  /* The first and last layers fall off only on their inward side -- there is
+     no neighbour beyond them to hand the highlight to, so falling off outward
+     would dim LABEL at rest and LOCATION at full explode, exactly where each
+     should be the thing you are looking at. */
+  --hl-0: calc(var(--reveal) * clamp(0, 1 - max(var(--hero-progress) - 0.125, 0) * 4, 1));
+  --hl-1: calc(
+    var(--reveal) * clamp(0, 1 - max(var(--hero-progress) - 0.375, 0.375 - var(--hero-progress)) * 4, 1)
+  );
+  --hl-2: calc(
+    var(--reveal) * clamp(0, 1 - max(var(--hero-progress) - 0.625, 0.625 - var(--hero-progress)) * 4, 1)
+  );
+  --hl-3: calc(var(--reveal) * clamp(0, 1 - max(0.875 - var(--hero-progress), 0) * 4, 1));
+}
+
+/* Idle rotation for the CSS-3D hero centerpiece (ExplodedObjectCSS.tsx).
+   Native CSS animation, driven by the compositor -- deliberately not
+   requestAnimationFrame, which this object exists specifically to avoid
+   depending on. Respects prefers-reduced-motion via the block below. */
+@keyframes css3d-idle-spin {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(360deg);
+  }
+}
+.css3d-spin {
+  animation: css3d-idle-spin 42s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Thin, unobtrusive scrollbars that still fit the dark industrial tone */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bg-surface-3);
+  border-radius: 999px;
+  border: 2px solid var(--bg-primary);
+}
+
+.focus-ring {
+  outline: none;
+}
+.focus-ring:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 2px;
+}

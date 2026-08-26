@@ -1,0 +1,56 @@
+[
+  {
+    "sku": "XJ-482",
+    "location": "A-17",
+    "qty_on_hand": 1,
+    "uom": "EA",
+    "last_cycle_count": "2026-08-20T00:00:00Z",
+    "last_updated": "2026-08-25T08:00:00Z",
+    "restricted": false
+  },
+  {
+    "sku": "QW-119",
+    "location": "B-04",
+    "qty_on_hand": 0,
+    "uom": "EA",
+    "last_cycle_count": "2026-08-25T06:00:00Z",
+    "last_updated": "2026-08-25T09:50:00Z",
+    "restricted": false
+  },
+  {
+    "sku": "LM-733",
+    "location": "A-22",
+    "qty_on_hand": 2,
+    "uom": "EA",
+    "last_cycle_count": "2026-08-24T00:00:00Z",
+    "last_updated": "2026-08-25T10:21:00Z",
+    "restricted": false
+  },
+  {
+    "sku": "HV-001",
+    "location": "C-02",
+    "qty_on_hand": 1,
+    "uom": "EA",
+    "last_cycle_count": "2026-08-23T00:00:00Z",
+    "last_updated": "2026-08-25T07:30:00Z",
+    "restricted": true
+  },
+  {
+    "sku": "BK-220",
+    "location": "B-19",
+    "qty_on_hand": 9,
+    "uom": "EA",
+    "last_cycle_count": "2026-08-24T00:00:00Z",
+    "last_updated": "2026-08-24T14:05:00Z",
+    "restricted": false
+  },
+  {
+    "sku": "PL-340",
+    "location": "A-08",
+    "qty_on_hand": 4,
+    "uom": "EA",
+    "last_cycle_count": "2026-08-23T00:00:00Z",
+    "last_updated": "2026-08-24T16:40:00Z",
+    "restricted": false
+  }
+]
