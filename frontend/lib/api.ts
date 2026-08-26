@@ -1,4 +1,4 @@
-import type { CaseSnapshot, ReviewDecision } from "./types";
+import type { AuditTrailResponse, CaseSnapshot, ReviewDecision } from "./types";
 
 export const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8000";
 
@@ -47,6 +47,12 @@ export interface NewIncidentSubmission {
   restricted: boolean;
   inventory_qty?: number;
   summary?: string;
+}
+
+export async function getIncidentAudit(incidentId: string): Promise<AuditTrailResponse> {
+  const res = await fetch(`${API_BASE}/api/incidents/${incidentId}/audit`, { cache: "no-store" });
+  if (!res.ok) throw new Error(`Failed to load audit trail for ${incidentId} (${res.status})`);
+  return (await res.json()) as AuditTrailResponse;
 }
 
 export async function createIncident(submission: NewIncidentSubmission): Promise<CaseSnapshot> {

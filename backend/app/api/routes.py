@@ -7,7 +7,14 @@ from fastapi.responses import StreamingResponse
 from langgraph.types import Command
 
 from app.api.schemas import NewIncidentRequest, ReviewDecisionRequest
-from app.api.service import build_initial_state, case_from_live_state, get_one_case, get_snapshot_values, list_all_cases
+from app.api.service import (
+    build_initial_state,
+    case_from_live_state,
+    get_audit_trail,
+    get_one_case,
+    get_snapshot_values,
+    list_all_cases,
+)
 from app.api.streaming import stream_graph_events
 from app.data.world import WORLD
 
@@ -56,6 +63,17 @@ async def get_incident(incident_id: str, request: Request):
     if case is None:
         raise HTTPException(status_code=404, detail=f"No incident found with id {incident_id}.")
     return case
+
+
+@router.get("/incidents/{incident_id}/audit")
+async def get_incident_audit(incident_id: str, request: Request):
+    incident = WORLD.get_incident(incident_id)
+    if incident is None:
+        if any(s["incident_id"] == incident_id for s in WORLD.seed_case_history):
+            return {"incident_id": incident_id, "entries": [], "note": "Seed case history predates checkpointed audit trails."}
+        raise HTTPException(status_code=404, detail=f"No incident found with id {incident_id}.")
+    entries = await get_audit_trail(_graph(request), incident_id)
+    return {"incident_id": incident_id, "entries": entries}
 
 
 

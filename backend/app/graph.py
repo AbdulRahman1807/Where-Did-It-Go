@@ -1,6 +1,8 @@
 """The investigation graph.
 
-    intake --> investigate <==> tools      (bounded tool-calling loop)
+    intake --> investigate <==> tools      (bounded tool-calling loop,
+                                             one call per "tools" step --
+                                             see app/nodes/tools.py)
              investigate --> synthesize --> assess
                                               |
                                 (review required?)
@@ -27,7 +29,6 @@ controlled looping with termination (max_rounds, enforced in human_review).
 from __future__ import annotations
 
 from langgraph.graph import END, StateGraph
-from langgraph.prebuilt import ToolNode
 
 from app.nodes.assess import assess_node
 from app.nodes.finalize import escalate_node, finalize_node
@@ -35,8 +36,8 @@ from app.nodes.human_review import human_review_node, route_after_human_review
 from app.nodes.intake import intake_node
 from app.nodes.investigate import investigate_node, route_after_investigate
 from app.nodes.synthesize import synthesize_node
+from app.nodes.tools import execute_one_tool, route_after_tool
 from app.state import InvestigationState
-from app.tools import ALL_TOOLS
 
 
 def route_after_assess(state: InvestigationState) -> str:
@@ -48,7 +49,7 @@ def build_graph(checkpointer) -> StateGraph:
 
     graph.add_node("intake", intake_node)
     graph.add_node("investigate", investigate_node)
-    graph.add_node("tools", ToolNode(ALL_TOOLS))
+    graph.add_node("tools", execute_one_tool)
     graph.add_node("synthesize", synthesize_node)
     graph.add_node("assess", assess_node)
     graph.add_node("human_review", human_review_node)
@@ -60,7 +61,9 @@ def build_graph(checkpointer) -> StateGraph:
     graph.add_conditional_edges(
         "investigate", route_after_investigate, {"tools": "tools", "synthesize": "synthesize"}
     )
-    graph.add_edge("tools", "investigate")
+    graph.add_conditional_edges(
+        "tools", route_after_tool, {"tools": "tools", "investigate": "investigate"}
+    )
     graph.add_edge("synthesize", "assess")
     graph.add_conditional_edges(
         "assess", route_after_assess, {"human_review": "human_review", "finalize": "finalize"}

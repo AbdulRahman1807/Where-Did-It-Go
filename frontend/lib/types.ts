@@ -136,6 +136,25 @@ export interface StreamAlreadyStartedEvent {
   case: CaseSnapshot;
 }
 
+export interface AuditEntry {
+  step: number | null;
+  node: string | null;
+  checkpoint_id: string | null;
+  timestamp: string;
+  status: CaseStatus | null;
+  round: number | null;
+  risk_level: RiskLevel | null;
+  review_required: boolean;
+  evidence_count: number;
+  new_activity: string[];
+}
+
+export interface AuditTrailResponse {
+  incident_id: string;
+  entries: AuditEntry[];
+  note?: string;
+}
+
 export type StreamEvent =
   | StreamActivityEvent
   | StreamNodeUpdateEvent
