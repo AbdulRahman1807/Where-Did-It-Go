@@ -1,5 +1,8 @@
 # Where Did It Go?
 
+## Built for DAIM Agentic AI Summer Bootcamp 
+> more info https://jsmboli.github.io/agentic-ai-bootcamp/
+
 **An Agentic Fulfillment Exception Investigator**
 
 > The system investigates fulfillment exceptions using operational evidence and documented
