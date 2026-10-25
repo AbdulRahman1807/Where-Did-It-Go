@@ -4,7 +4,9 @@ import type { CaseSnapshot } from "@/lib/types";
 
 export function FindingPanel({ caseData, streaming }: { caseData: CaseSnapshot; streaming: boolean }) {
   const { finding, recommendation, evidence, unresolved_questions } = caseData;
-  const conflicts = evidence.filter((e) => e.stance === "conflicts");
+  // The item-trace evidence item is computed from the records and has its own
+  // panel; this banner is for conflicts between the other evidence items.
+  const conflicts = evidence.filter((e) => e.stance === "conflicts" && !e.source_name.startsWith("Item trace"));
 
   if (!finding && !streaming) {
     return (
@@ -32,8 +34,10 @@ export function FindingPanel({ caseData, streaming }: { caseData: CaseSnapshot; 
           <div className="rounded-md border border-red/30 bg-red-dim/30 px-4 py-3 text-sm text-red">
             <div className="font-medium">Evidence conflict detected</div>
             <p className="mt-1 text-red/90">
-              {conflicts.map((c) => c.source_name).join(" and ")} disagree with each other. Additional
-              verification is recommended before acting.
+              {conflicts.length === 1
+                ? `${conflicts[0].source_name} conflicts with other evidence.`
+                : `${conflicts.map((c) => c.source_name).join(" and ")} disagree with each other.`}{" "}
+              Additional verification is recommended before acting.
             </p>
           </div>
         )}

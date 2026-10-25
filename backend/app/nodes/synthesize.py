@@ -13,9 +13,11 @@ from __future__ import annotations
 from pydantic import BaseModel, Field
 from typing import Literal
 
+from app.data.world import WORLD
 from app.models.llm import get_capable_model, invoke_with_retry
 from app.nodes.common import next_evidence_id, render_transcript
 from app.state import InvestigationState
+from app.trace import build_trace, render_trace_text, trace_evidence
 
 SYNTHESIS_SYSTEM_PROMPT = """You turn a fulfillment-exception investigation \
 transcript into a structured case file.
@@ -52,6 +54,14 @@ recorded" or "this indicates a receiving gap" are conclusions about a cause, \
 not neutral restatements of an empty lookup, even when they sound modest). \
 Put what's missing and what would need to be checked physically in \
 unresolved_questions instead.
+- The prompt includes a deterministic item trace computed from the records. \
+Treat its timeline as authoritative. Only attribute a failed attempt to a move \
+or a stale record if the trace marks that specific attempt as explained \
+(item_elsewhere). If the trace says an attempt is NOT explained by the records, \
+say so in the finding -- do not fold it into the move narrative -- and put \
+what would explain it (e.g. a physical check at that location) in \
+unresolved_questions. Do not repeat the trace as a separate evidence item; it \
+is added to the case file automatically.
 - A single failed pick attempt, by itself, is not a conflict. Only mark \
 evidence as conflicting when two distinct evidence sources actually \
 disagree with each other (e.g. the inventory record names one location and \
@@ -135,10 +145,13 @@ def synthesize_node(state: InvestigationState) -> dict:
         for f in state["human_feedback_history"]
     )
 
+    trace = build_trace(WORLD, state["task_id"])
+
     prompt = (
         f"Incident {state['incident_id']}: {state['incident_summary']}\n"
         f"Pick task: {state['task_id']} | Order: {state['order_id']}\n"
         f"Investigation round: {state['round']}\n\n"
+        + (f"{render_trace_text(trace)}\n\n" if trace else "")
         + (f"Prior human feedback:\n{feedback_lines}\n\n" if feedback_lines else "")
         + f"Full investigation transcript:\n{transcript}\n\n"
         "Produce the current, complete case file from this transcript."
@@ -183,6 +196,16 @@ def synthesize_node(state: InvestigationState) -> dict:
         "rationale": result.recommendation.rationale,
         "evidence_ids": _resolve_refs(result.recommendation.evidence_refs, evidence_ids),
     }
+
+    # The deterministic trace goes into the case file as evidence in its own
+    # right, appended after the model's items so its evidence_refs indices
+    # still line up.
+    trace_item = trace_evidence(trace) if trace else None
+    if trace_item:
+        trace_id = next_evidence_id(evidence)
+        evidence.append({"id": trace_id, **trace_item, "round": state["round"]})
+        if trace_item["stance"] == "conflicts":
+            finding["evidence_ids"].append(trace_id)
 
     return {
         "evidence": evidence,

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useScrollProgress } from "@/lib/useScrollProgress";
+import { FulfillmentStory } from "./FulfillmentStory";
 import { Hero3DGate } from "./Hero3DGate";
 
 // Fixed-size 3D geometry doesn't reserve layout space the way text does: on
@@ -47,6 +48,7 @@ export function Hero() {
   // See useScrollProgress and the @property block in globals.css.
 
   return (
+    <>
     <div ref={ref} className="hero-root relative h-[200vh]">
       <div className="sticky top-0 h-screen w-full overflow-hidden bg-void">
         {/* background trace lines -- subtle depth layer, moves slower than foreground text */}
@@ -156,5 +158,7 @@ export function Hero() {
         </div>
       </div>
     </div>
+    <FulfillmentStory />
+    </>
   );
 }

@@ -1,4 +1,4 @@
-import type { AuditTrailResponse, CaseSnapshot, ReviewDecision } from "./types";
+import type { AuditTrailResponse, CaseSnapshot, ItemTrace, ReviewDecision } from "./types";
 
 export const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8000";
 
@@ -53,6 +53,13 @@ export async function getIncidentAudit(incidentId: string): Promise<AuditTrailRe
   const res = await fetch(`${API_BASE}/api/incidents/${incidentId}/audit`, { cache: "no-store" });
   if (!res.ok) throw new Error(`Failed to load audit trail for ${incidentId} (${res.status})`);
   return (await res.json()) as AuditTrailResponse;
+}
+
+export async function getTrace(incidentId: string): Promise<ItemTrace | null> {
+  const res = await fetch(`${API_BASE}/api/incidents/${incidentId}/trace`, { cache: "no-store" });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`Failed to load item trace for ${incidentId} (${res.status})`);
+  return (await res.json()) as ItemTrace;
 }
 
 export async function createIncident(submission: NewIncidentSubmission): Promise<CaseSnapshot> {

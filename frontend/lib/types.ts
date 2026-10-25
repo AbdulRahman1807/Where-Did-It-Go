@@ -155,6 +155,45 @@ export interface AuditTrailResponse {
   note?: string;
 }
 
+// Mirrors backend/app/trace.py (GET /api/incidents/{id}/trace): computed from
+// the records on demand, with no model call.
+export interface TraceFinding {
+  code: string;
+  severity: "conflict" | "unexplained" | "info";
+  review: boolean;
+  message: string;
+  attempt_no?: number;
+}
+
+export interface TraceTimelineItem {
+  timestamp: string;
+  kind: "location_event" | "pick_attempt" | "inventory_update";
+  label: string;
+  location: string | null;
+  detail: string;
+  ref: string;
+  verdict?: string;
+  explained?: boolean | null;
+}
+
+export interface ItemTrace {
+  task_id: string;
+  sku: string;
+  assigned_location: string;
+  last_known: {
+    location: string | null;
+    as_of: string;
+    event_id: string;
+    event_type: string;
+    note: string;
+  } | null;
+  assigned_matches_last_known: boolean | null;
+  inventory: { location: string; qty_on_hand: number; last_updated: string; last_cycle_count: string }[];
+  findings: TraceFinding[];
+  timeline: TraceTimelineItem[];
+  single_position_assumed: boolean;
+}
+
 export type StreamEvent =
   | StreamActivityEvent
   | StreamNodeUpdateEvent

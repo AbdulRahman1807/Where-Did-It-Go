@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getCase, startInvestigation, submitReview, type ReviewSubmission } from "./api";
 import { parseSSEStream } from "./sse";
 import type { CaseSnapshot, StreamReviewRequiredEvent } from "./types";
@@ -30,9 +30,29 @@ export function useInvestigation(incidentId: string): UseInvestigation {
   const [loading, setLoading] = useState(true);
   const [streaming, setStreaming] = useState(false);
   const [activity, setActivity] = useState<ActivityEntry[]>([]);
-  const [reviewPayload, setReviewPayload] = useState<StreamReviewRequiredEvent["payload"] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const activityId = useRef(0);
+
+  // Derived from the case snapshot rather than captured from the one-time
+  // "review_required" stream event: by the time a case is awaiting review,
+  // every field the review panel shows is already in the snapshot (it is
+  // what the stream's node_updates and the REST read both fill). Capturing
+  // the event instead meant a page reload while awaiting review showed no
+  // review panel at all -- and, since the finding panel is hidden in that
+  // state, no finding either -- leaving the case undecidable from the UI.
+  const reviewPayload = useMemo<StreamReviewRequiredEvent["payload"] | null>(() => {
+    if (caseData?.status !== "awaiting_review" || !caseData.finding || !caseData.recommendation) return null;
+    return {
+      incident_id: caseData.incident_id,
+      round: caseData.round ?? 1,
+      finding: caseData.finding,
+      recommendation: caseData.recommendation,
+      evidence: caseData.evidence,
+      risk_level: caseData.risk_level ?? "medium",
+      review_reasons: caseData.review.reasons,
+      unresolved_questions: caseData.unresolved_questions,
+    };
+  }, [caseData]);
 
   useEffect(() => {
     // loading already starts true (see useState above), so nothing to set
@@ -72,7 +92,8 @@ export function useInvestigation(incidentId: string): UseInvestigation {
             break;
           }
           case "review_required":
-            setReviewPayload(event.payload);
+            // The review panel is derived from caseData (see reviewPayload
+            // above); the event just marks the pause.
             break;
           case "error":
             setError(event.message);
@@ -84,7 +105,6 @@ export function useInvestigation(incidentId: string): UseInvestigation {
             // live delta buffer to avoid double-rendering those lines.
             setCaseData(event.case);
             setActivity([]);
-            if (event.case.status !== "awaiting_review") setReviewPayload(null);
             break;
         }
       }
