@@ -17,6 +17,7 @@ from app.api.service import (
 )
 from app.api.streaming import stream_graph_events
 from app.data.world import WORLD
+from app.trace import build_trace
 
 router = APIRouter(prefix="/api")
 
@@ -63,6 +64,20 @@ async def get_incident(incident_id: str, request: Request):
     if case is None:
         raise HTTPException(status_code=404, detail=f"No incident found with id {incident_id}.")
     return case
+
+
+@router.get("/incidents/{incident_id}/trace")
+async def get_incident_trace(incident_id: str):
+    """Deterministic item trace (app/trace.py): computed from the records on
+    demand, so it is available before any investigation has started and
+    needs no model call."""
+    incident = WORLD.get_incident(incident_id)
+    if incident is None:
+        raise HTTPException(status_code=404, detail=f"No incident found with id {incident_id}.")
+    trace = build_trace(WORLD, incident["task_id"])
+    if trace is None:
+        raise HTTPException(status_code=404, detail=f"No pick task found for incident {incident_id}.")
+    return trace
 
 
 @router.get("/incidents/{incident_id}/audit")

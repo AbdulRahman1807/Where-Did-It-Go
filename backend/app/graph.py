@@ -3,7 +3,9 @@
     intake --> investigate <==> tools      (bounded tool-calling loop,
                                              one call per "tools" step --
                                              see app/nodes/tools.py)
-             investigate --> synthesize --> assess
+             investigate --> [procedures] --> synthesize --> assess
+                              (only if the investigator never searched
+                               procedures -- see app/nodes/procedures.py)
                                               |
                                 (review required?)
                                     /              \\
@@ -35,6 +37,7 @@ from app.nodes.finalize import escalate_node, finalize_node
 from app.nodes.human_review import human_review_node, route_after_human_review
 from app.nodes.intake import intake_node
 from app.nodes.investigate import investigate_node, route_after_investigate
+from app.nodes.procedures import force_procedure_search
 from app.nodes.synthesize import synthesize_node
 from app.nodes.tools import execute_one_tool, route_after_tool
 from app.state import InvestigationState
@@ -50,6 +53,7 @@ def build_graph(checkpointer) -> StateGraph:
     graph.add_node("intake", intake_node)
     graph.add_node("investigate", investigate_node)
     graph.add_node("tools", execute_one_tool)
+    graph.add_node("procedures", force_procedure_search)
     graph.add_node("synthesize", synthesize_node)
     graph.add_node("assess", assess_node)
     graph.add_node("human_review", human_review_node)
@@ -59,8 +63,11 @@ def build_graph(checkpointer) -> StateGraph:
     graph.set_entry_point("intake")
     graph.add_edge("intake", "investigate")
     graph.add_conditional_edges(
-        "investigate", route_after_investigate, {"tools": "tools", "synthesize": "synthesize"}
+        "investigate",
+        route_after_investigate,
+        {"tools": "tools", "procedures": "procedures", "synthesize": "synthesize"},
     )
+    graph.add_edge("procedures", "synthesize")
     graph.add_conditional_edges(
         "tools", route_after_tool, {"tools": "tools", "investigate": "investigate"}
     )

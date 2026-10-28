@@ -11,6 +11,7 @@ import { ActivityFeed } from "./ActivityFeed";
 import { ReviewPanel } from "./ReviewPanel";
 import { OutcomePanel } from "./OutcomePanel";
 import { AuditTrail } from "./AuditTrail";
+import { TracePanel } from "./TracePanel";
 
 export function InvestigationWorkspace({ incidentId }: { incidentId: string }) {
   const { caseData, loading, streaming, activity, reviewPayload, error, start, review } =
@@ -101,14 +102,17 @@ export function InvestigationWorkspace({ incidentId }: { incidentId: string }) {
             )}
 
             {!caseData.started && (
-              <div className="rounded-lg border border-border-subtle bg-surface px-6 py-10 text-center">
-                <p className="mx-auto max-w-md text-sm text-text-secondary">
-                  This incident hasn&apos;t been investigated yet. Starting will gather operational
-                  evidence and check applicable procedures before producing a finding.
-                </p>
-                <Button variant="primary" className="mt-5" disabled={streaming} onClick={start}>
-                  {streaming ? "Starting investigation…" : "Begin investigation"}
-                </Button>
+              <div className="space-y-6">
+                <TracePanel incidentId={caseData.incident_id} />
+                <div className="rounded-lg border border-border-subtle bg-surface px-6 py-10 text-center">
+                  <p className="mx-auto max-w-md text-sm text-text-secondary">
+                    This incident hasn&apos;t been investigated yet. Starting will gather operational
+                    evidence and check applicable procedures before producing a finding.
+                  </p>
+                  <Button variant="primary" className="mt-5" disabled={streaming} onClick={start}>
+                    {streaming ? "Starting investigation…" : "Begin investigation"}
+                  </Button>
+                </div>
               </div>
             )}
 
@@ -130,6 +134,7 @@ export function InvestigationWorkspace({ incidentId }: { incidentId: string }) {
                     {caseData.status !== "awaiting_review" && (
                       <FindingPanel caseData={caseData} streaming={streaming} />
                     )}
+                    <TracePanel incidentId={caseData.incident_id} />
                     <ActivityFeed history={caseData.activity_log} live={activity} streaming={streaming} />
                     <AuditTrail incidentId={caseData.incident_id} />
                   </div>

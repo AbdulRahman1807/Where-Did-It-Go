@@ -10,7 +10,9 @@ from __future__ import annotations
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from app.config import MAX_INVESTIGATION_ROUNDS
+from app.data.world import WORLD
 from app.state import InvestigationState
+from app.trace import build_trace, render_trace_text
 
 INVESTIGATOR_SYSTEM_PROMPT = """You are the investigation component of \
 "Where Did It Go?", a fulfillment exception investigator. You investigate \
@@ -27,6 +29,10 @@ evidence, even if the operational records alone seem to explain the \
 incident. Procedure can change what the correct response is (e.g. requiring \
 human sign-off) in ways the operational records alone never would tell you. \
 Don't rely on general intuition about warehouses instead of the actual SOP.
+- The opening message includes a deterministic item trace computed from the \
+records. Treat it as ground truth for the timeline (where the records placed \
+the item at each attempt); use tools to confirm details and to find what the \
+records do not explain.
 - Be efficient: call only the tools relevant to this incident. Once you've \
 gathered the operational evidence and checked applicable procedure, stop \
 calling tools.
@@ -34,10 +40,12 @@ calling tools.
 
 
 def intake_node(state: InvestigationState) -> dict:
+    trace = build_trace(WORLD, state["task_id"])
     opening_message = (
         f"Incident {state['incident_id']}: {state['incident_summary']}\n"
         f"Pick task: {state['task_id']} | Order: {state['order_id']}\n\n"
-        "Investigate this pick exception. Gather the operational evidence and "
+        + (f"{render_trace_text(trace)}\n\n" if trace else "")
+        + "Investigate this pick exception. Gather the operational evidence and "
         "any applicable procedure you need before stopping."
     )
     return {

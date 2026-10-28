@@ -3,8 +3,10 @@
 Two layers, deliberately kept separate:
 
 1. Deterministic rule checks -- for conditions that don't require judgment:
-   conflicting evidence, a restricted/high-value SKU, an expedited-order
-   short pick, or a total absence of inventory/location records for the SKU.
+   conflicting evidence (as labeled by synthesize, and independently as
+   found by replaying the records in app/trace.py), a restricted/high-value
+   SKU, an expedited-order short pick, or a total absence of
+   inventory/location records for the SKU.
    These are checked in plain code, against the actual tool data, because
    they're unambiguous, auditable, and shouldn't depend on a model call (or on
    how confidently a model happens to word its finding) to get right.
@@ -30,6 +32,7 @@ from app.data.world import WORLD
 from app.models.llm import get_fast_model, invoke_with_retry
 from app.nodes.common import is_restricted_sku
 from app.state import InvestigationState
+from app.trace import build_trace
 
 _RISK_ORDER = {"low": 0, "medium": 1, "high": 2}
 
@@ -64,6 +67,15 @@ def _deterministic_checks(state: InvestigationState) -> tuple[list[str], str | N
             "recommendation is not safely supported until the conflict is resolved."
         )
         forced_risk = "medium"
+
+    # Conflicts and unexplained failures found by replaying the actual
+    # records (app/trace.py), independent of how the model labeled its evidence.
+    trace = build_trace(WORLD, state["task_id"])
+    for finding in (trace or {}).get("findings", []):
+        if finding["review"]:
+            reasons.append(finding["message"])
+            if forced_risk is None or _RISK_ORDER["medium"] > _RISK_ORDER[forced_risk]:
+                forced_risk = "medium"
 
     task = WORLD.get_pick_task(state["task_id"])
     sku = task["sku"] if task else None

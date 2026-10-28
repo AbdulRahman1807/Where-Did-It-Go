@@ -119,6 +119,12 @@ class ProcedureIndex:
                 ],
             )
 
+    def warm_up(self) -> None:
+        """Runs one throwaway query so the embedding model is downloaded (first
+        run only, ~80 MB) and loaded now, rather than inside whichever
+        investigation happens to search procedures first."""
+        self._collection.query(query_texts=["warm-up"], n_results=1)
+
     def search(self, query: str, k: int = 3) -> list[dict]:
         result = self._collection.query(query_texts=[query], n_results=k)
         hits = []

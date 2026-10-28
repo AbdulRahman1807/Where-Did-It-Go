@@ -1,7 +1,7 @@
 [
   {"event_id": "LOC-EVT-0090", "sku": "XJ-482", "location": "A-17", "event_type": "putaway", "timestamp": "2026-08-18T09:00:00Z", "actor": "robot-14", "note": "Initial putaway after receiving."},
   {"event_id": "LOC-EVT-0093", "sku": "XJ-482", "location": "A-17", "event_type": "cycle_count", "timestamp": "2026-08-22T10:00:00Z", "actor": "system", "note": "Scheduled cycle count confirms 1 unit at A-17."},
-  {"event_id": "LOC-EVT-0091", "sku": "XJ-482", "location": "A-17", "event_type": "moved", "timestamp": "2026-08-25T14:21:00Z", "actor": "robot-14", "note": "Automated re-slotting move: A-17 to B-12 (space consolidation pass)."},
+  {"event_id": "LOC-EVT-0091", "sku": "XJ-482", "location": "A-17", "event_type": "moved", "from_location": "A-17", "to_location": "B-12", "timestamp": "2026-08-25T14:21:00Z", "actor": "robot-14", "note": "Automated re-slotting move: A-17 to B-12 (space consolidation pass)."},
   {"event_id": "LOC-EVT-0092", "sku": "XJ-482", "location": "B-12", "event_type": "putaway", "timestamp": "2026-08-25T14:21:00Z", "actor": "robot-14", "note": "Arrival scan confirming placement at B-12."},
 
   {"event_id": "LOC-EVT-0140", "sku": "QW-119", "location": "B-04", "event_type": "pick_scan", "timestamp": "2026-08-25T07:10:00Z", "actor": "associate-118", "note": "Pick scan depleted remaining stock to 0."},
@@ -15,5 +15,5 @@
 
   {"event_id": "LOC-EVT-0420", "sku": "BK-220", "location": "B-19", "event_type": "putaway", "timestamp": "2026-08-24T07:00:00Z", "actor": "robot-02", "note": "Replenishment putaway, 12 units."},
 
-  {"event_id": "LOC-EVT-0430", "sku": "PL-340", "location": "A-08", "event_type": "moved", "timestamp": "2026-08-24T16:35:00Z", "actor": "associate-071", "note": "Corrected mis-slot back to A-08 after manual recount."}
+  {"event_id": "LOC-EVT-0430", "sku": "PL-340", "location": "A-08", "event_type": "moved", "to_location": "A-08", "timestamp": "2026-08-24T16:35:00Z", "actor": "associate-071", "note": "Corrected mis-slot back to A-08 after manual recount."}
 ]

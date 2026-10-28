@@ -14,6 +14,7 @@ from langchain_core.messages import AIMessage, HumanMessage
 from app.config import MAX_TOOL_CALLS_PER_ROUND
 from app.models.llm import get_capable_model, invoke_with_retry
 from app.nodes.common import describe_tool_call
+from app.nodes.procedures import has_searched_procedures
 from app.state import InvestigationState
 from app.tools import ALL_TOOLS
 
@@ -77,4 +78,8 @@ def route_after_investigate(state: InvestigationState) -> str:
     last = state["messages"][-1]
     if isinstance(last, AIMessage) and last.tool_calls:
         return "tools"
+    # The investigator is done. Procedure lookup is mandatory, not a prompt
+    # suggestion: if it never searched, do it for it (app/nodes/procedures.py).
+    if not has_searched_procedures(state["messages"]):
+        return "procedures"
     return "synthesize"
